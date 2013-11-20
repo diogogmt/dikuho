@@ -7,26 +7,48 @@ import java.util.List;
 
 public class State<V>
     implements Iterable<Map.Entry<Point, V>> {
-    
+
+    /*
+        @puzzle - Implementation of 2D array
+        @Point represents a x,y coordinates on the plane
+        @V holds the value stored on the coordinate
+     */
     private final Map<Point, V> puzzle = new LinkedHashMap<>();
 
+    /*
+        @lastPos
+        Coordinates of the last move performed on the puzzle
+     */
     private Point lastPos;
 
+    /*
+        @size
+        flat size of the puzzle (width/height)
+     */
     private int size;
+
+    /*
+        @depth
+        debug attribute to keep track of how many levels the state is deep on the space
+     */
+    private int depth;
 
 
     public State() {
     }
 
+    /*
+        Initializes a State with size^2 tiles
+     */
     public State(int aSize) {
-//        System.out.println("State.State");
         size = aSize;
-//        System.out.println("size: " + size);
     }
 
+    /*
+        Copy constructor for State
+        Initializes a new state with the puzzle, size and lastPos of an existing State
+     */
     public State(Map<Point, Integer> aPuzzle, int aSize, Point aLastPos) {
-//        System.out.println("State.State");
-
         size = aSize;
         lastPos = aLastPos;
 
@@ -51,21 +73,22 @@ public class State<V>
         return puzzle.entrySet().iterator();
     }
 
+    /*
+        Checks if puzzle is finished
+        If the size of the puzzle (number of tiles) equals size^2 means all tiles are filled
+     */
     public boolean isFull() {
-//        System.out.println("State.isFull");
-//        System.out.println("size*size: " + size*size);
-//        System.out.println("puzzleSize: " + puzzle.size());
         return size*size <= puzzle.size();
     }
 
+    /*
+        Check if the puzzle contains a number n
+     */
     public Point hasNum(V num) {
-//        System.out.println("State.hasNum");
-//        System.out.println("num: " + num);
         Iterator<Map.Entry<Point, V>> it = iterator();
         while (it.hasNext()) {
             Map.Entry<Point, V> item = it.next();
             V value = item.getValue();
-//            System.out.println("value: " + value);
             if (value.equals(num)) {
                 return item.getKey();
             }
@@ -73,10 +96,22 @@ public class State<V>
         return null;
     }
 
+    /*
+        Checks if pos1 is adjacent to pos2
+        Algorithm iterates on all possible 9 valid coords:
+        -1, -1
+        -1 ,0
+        -1, +1
+        0, 0
+        0, -1
+        0, +1
+        +1, 0
+        +1, -1
+        +1, +1
+        And adds them to pos2
+        If they match means they are adjacent
+     */
     public boolean isAdjacent(Point pos1, Point pos2) {
-//        System.out.println("State.isAdjacent");
-//        System.out.println("pos1: " + pos1);
-//        System.out.println("pos2: " + pos2);
         for (int i = -1; i <= 1; i++) {
             int x = pos2.x;
             x += i;
@@ -91,9 +126,11 @@ public class State<V>
         return false;
     }
 
+    /*
+        Gather all possible valid moves for a selected position
+        A Valid move is defined by a adjacent tile that does not contain a number
+     */
     public List<Point> findValidMoves(Point pos) {
-//        System.out.println("State.findValidMoves");
-//        System.out.println("pos: " + pos);
         List<Point> moves = new ArrayList<>();
         for (int i = -1; i <= 1; i++) {
             int x = pos.x;
@@ -105,7 +142,6 @@ public class State<V>
                 if (!puzzle.containsKey(point) && x >= 0 && x <= size - 1 && y >= 0 && y <= size - 1) moves.add(point);
             }
         }
-
         return moves;
     }
 
@@ -141,6 +177,13 @@ public class State<V>
         return puzzle.get(lastPos);
     }
 
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
 
     public void printPuzzle() {
         for (int x = 0; x < size; x++) {
@@ -165,6 +208,7 @@ public class State<V>
         return "State{" +
             ", lastPos=" + lastPos +
             ", size=" + size +
+            ", depth=" + depth +
             '}';
     }
 }
